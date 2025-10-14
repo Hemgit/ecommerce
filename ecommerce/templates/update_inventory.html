@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Update Inventory{% endblock %}
+{% block content %}
+<h1 class="mb-4">Update Inventory</h1>
+<form method="post">
+    <div class="mb-3">
+        <label for="inventory" class="form-label">Inventory for {{ product.name }}</label>
+        <input type="number" class="form-control" id="inventory" name="inventory" value="{{ product.inventory }}" min="0" required>
+    </div>
+    <button type="submit" class="btn btn-success">Update</button>
+    <a href="{{ url_for('admin_products') }}" class="btn btn-link">Back to Products</a>
+</form>
+{% endblock %}

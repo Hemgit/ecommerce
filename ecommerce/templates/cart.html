@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Your Cart{% endblock %}
+{% block content %}
+<h1 class="mb-4">Your Shopping Cart</h1>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Image</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in range(cart_items|length) %}
+        <tr>
+            <td>{{ products[i].name }}</td>
+            <td>${{ products[i].price }}</td>
+            <td>{% if products[i].image_url %}<img src="{{ products[i].image_url }}" width="50">{% endif %}</td>
+            <td>
+                <form action="{{ url_for('remove_from_cart', cart_id=cart_items[i].id) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<h4>Total: ${{ total }}</h4>
+<a href="{{ url_for('checkout') }}" class="btn btn-success">Checkout</a>
+<a href="{{ url_for('home') }}" class="btn btn-link">Back to Home</a>
+{% endblock %}

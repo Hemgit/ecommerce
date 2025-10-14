@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<h1 class="mb-4">Checkout</h1>
+{% if success %}
+    <div class="alert alert-success">Order placed successfully!</div>
+{% else %}
+    {% if stripe_key %}
+    <form action="" method="post" id="payment-form" class="card p-4 col-md-6 mx-auto">
+        <script src="https://js.stripe.com/v3/"></script>
+        <div id="card-element" class="mb-3"></div>
+        <button type="submit" class="btn btn-success">Pay with Card</button>
+        <input type="hidden" name="stripeToken" id="stripeToken">
+    </form>
+    <script>
+    var stripe = Stripe("{{ stripe_key }}");
+    var elements = stripe.elements();
+    var card = elements.create('card');
+    card.mount('#card-element');
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        stripe.createToken(card).then(function(result) {
+            if (result.error) {
+                alert(result.error.message);
+            } else {
+                document.getElementById('stripeToken').value = result.token.id;
+                form.submit();
+            }
+        });
+    });
+    </script>
+    {% else %}
+    <form method="post" class="card p-4 col-md-6 mx-auto">
+        <button type="submit" class="btn btn-success">Place Order</button>
+    </form>
+    {% endif %}
+{% endif %}
+<a href="{{ url_for('home') }}" class="btn btn-link mt-3">Back to Home</a>
+{% endblock %}

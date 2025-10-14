@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="card mx-auto" style="max-width: 500px;">
+    {% if product.image_url %}
+    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+    {% endif %}
+    <div class="card-body">
+        <h2 class="card-title">{{ product.name }}</h2>
+        <p class="card-text">{{ product.description }}</p>
+        <p class="card-text"><strong>Price:</strong> ${{ product.price }}</p>
+        <p class="card-text"><strong>Category:</strong> {{ product.category }}</p>
+        <p class="card-text"><strong>Inventory:</strong> {{ product.inventory }}</p>
+        {% if product.inventory > 0 %}
+            {% if session.user_id %}
+                <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success">Add to Cart</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Login to add to cart</a>
+            {% endif %}
+        {% else %}
+            <span class="badge bg-danger">Out of Stock</span>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-danger mt-3">{{ error }}</div>
+        {% endif %}
+        <a href="{{ url_for('home') }}" class="btn btn-link mt-3">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

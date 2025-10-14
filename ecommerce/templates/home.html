@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Home - Ecommerce{% endblock %}
+{% block content %}
+<h1 class="mb-4">Welcome to the Ecommerce Store</h1>
+<form method="get" class="row mb-4">
+    <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_query }}">
+    </div>
+    <div class="col-md-4">
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == category_filter %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if product.image_url %}
+            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">${{ product.price }}</p>
+                <p class="card-text"><strong>Inventory:</strong> {{ product.inventory }}</p>
+                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
