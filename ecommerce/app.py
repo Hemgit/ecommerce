@@ -8,6 +8,88 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ecommerce.db'
 db.init_app(app)
 
+from flask import jsonify
+
+# --- Product API Endpoints ---
+@app.route('/api/products', methods=['GET'])
+def api_get_products():
+    products = Product.query.all()
+    return jsonify({
+        "products": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "price": p.price,
+                "inventory": p.inventory,
+                "category": p.category,
+                "image_url": p.image_url
+            } for p in products
+        ]
+    })
+
+@app.route('/api/products/<int:product_id>', methods=['GET'])
+def api_get_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    return jsonify({
+        "id": product.id,
+        "name": product.name,
+        "price": product.price,
+        "inventory": product.inventory,
+        "category": product.category,
+        "image_url": product.image_url
+    })
+
+@app.route('/api/products', methods=['POST'])
+def api_add_product():
+    user_id = session.get('user_id')
+    user = User.query.get(user_id) if user_id else None
+    if not user or user.username != 'admin':
+        return jsonify({"error": "Admin access required"}), 403
+    data = request.get_json()
+    name = data.get('name')
+    price = data.get('price')
+    inventory = data.get('inventory')
+    category = data.get('category')
+    image_url = data.get('image_url', '')
+    if not name or price is None or inventory is None:
+        return jsonify({"error": "Missing required fields"}), 400
+    try:
+        price = float(price)
+        inventory = int(inventory)
+    except ValueError:
+        return jsonify({"error": "Invalid price or inventory value"}), 400
+    product = Product(name=name, price=price, inventory=inventory, category=category, image_url=image_url)
+    db.session.add(product)
+    db.session.commit()
+    return jsonify({"message": "Product added", "id": product.id}), 201
+
+@app.route('/api/products/<int:product_id>', methods=['PUT'])
+def api_update_product(product_id):
+    user_id = session.get('user_id')
+    user = User.query.get(user_id) if user_id else None
+    if not user or user.username != 'admin':
+        return jsonify({"error": "Admin access required"}), 403
+    product = Product.query.get_or_404(product_id)
+    data = request.get_json()
+    product.name = data.get('name', product.name)
+    product.price = float(data.get('price', product.price))
+    product.inventory = int(data.get('inventory', product.inventory))
+    product.category = data.get('category', product.category)
+    product.image_url = data.get('image_url', product.image_url)
+    db.session.commit()
+    return jsonify({"message": "Product updated"})
+
+@app.route('/api/products/<int:product_id>', methods=['DELETE'])
+def api_delete_product(product_id):
+    user_id = session.get('user_id')
+    user = User.query.get(user_id) if user_id else None
+    if not user or user.username != 'admin':
+        return jsonify({"error": "Admin access required"}), 403
+    product = Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({"message": "Product deleted"})
+
 # Make current user available in all templates
 @app.context_processor
 def inject_user():
